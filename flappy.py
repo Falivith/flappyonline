@@ -1,4 +1,5 @@
 import pygame, random
+import time
 from pygame.locals import *
 
 SCREEN_WIDTH = 400
@@ -95,6 +96,11 @@ def get_random_pipes(xpos):
     pipe_inverted = Pipe(True, xpos, SCREEN_HEIGHT - size - PIPE_GAP)
     return (pipe, pipe_inverted)
 
+def restart_button():
+    pygame.draw.rect(screen, 255, 0, 0, (350, 250, 100, 50))
+    fonte = pygame.font.Font(None, 36)
+    texto = fonte.render("Restart", True, (255, 255, 255))
+    screen.blit(texto, (360, 260))
 
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -119,6 +125,7 @@ for i in range(2):
 
 
 clock = pygame.time.Clock()
+
 
 while True:
     clock.tick(30)
@@ -160,5 +167,21 @@ while True:
     if (pygame.sprite.groupcollide(bird_group, ground_group, False, False, pygame.sprite.collide_mask) or
        pygame.sprite.groupcollide(bird_group, pipe_group, False, False, pygame.sprite.collide_mask)):
         # Game over
-        input()
-        break
+        time.sleep(2)
+        
+        # Reinicia o jogo
+        bird_group.empty()
+        bird = Bird()
+        bird_group.add(bird)
+
+        ground_group.empty()
+        for i in range(2):
+            ground = Ground(GROUND_WIDTH * i)
+            ground_group.add(ground)
+
+        pipe_group.empty()
+        for i in range(2):
+            pipes = get_random_pipes(SCREEN_WIDTH * i + 800)
+            pipe_group.add(pipes[0])
+            pipe_group.add(pipes[1])
+    
