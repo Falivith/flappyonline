@@ -2,7 +2,7 @@ import socket
 from _thread import * 
 import sys
 
-server = "192.168.18.2"
+server = "192.168.18.2" #ip do servidor
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -17,7 +17,10 @@ s.listen(2)
 print("Esperando conexao, Servidor Inciado")
 
 def thread_client(conn):
+    conn.send(str.encode("Conectado"))
     reply = ""
+
+    #mantem loop para receber conexoes
     while True:
         try:
             data = conn.recv(2048)
@@ -33,6 +36,8 @@ def thread_client(conn):
             conn.sendall(str.encode(reply))
         except:
             break
+    print("Conexao Perdida")
+    conn.close()
 
 
 while True:
