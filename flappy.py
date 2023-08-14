@@ -1,6 +1,7 @@
 import pygame, random
 import time
 from pygame.locals import *
+#from network import Network
 
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 800
@@ -47,14 +48,14 @@ class Button():
 
 class Bird(pygame.sprite.Sprite):
 
-    def __init__(self):
+    def __init__(self,startPos=(SCREEN_WIDTH/2,SCREEN_HEIGHT/2)):
         pygame.sprite.Sprite.__init__(self)
 
         self.images = [pygame.image.load('bluebird-upflap.png').convert_alpha(),
                        pygame.image.load('bluebird-midflap.png').convert_alpha(),
                        pygame.image.load('bluebird-downflap.png').convert_alpha()]
-
-        self.speed = SPEED
+        
+        self.y = SPEED
 
         self.current_image = 0
 
@@ -62,20 +63,20 @@ class Bird(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
 
         self.rect = self.image.get_rect()
-        self.rect[0] = SCREEN_WIDTH / 2
-        self.rect[1] = SCREEN_HEIGHT / 2
+        self.rect[0] = startPos[0] #SCREEN_WIDTH / 3
+        self.rect[1] = startPos[1] #SCREEN_HEIGHT / 3
 
     def update(self):
         self.current_image = (self.current_image + 1) % 3
         self.image = self.images[ self.current_image ]
 
-        self.speed += GRAVITY
+        self.y += GRAVITY
 
         # Update height
-        self.rect[1] += self.speed
+        self.rect[1] += self.y
     
     def bump(self):
-        self.speed = -SPEED
+        self.y = -SPEED
 
 class Pipe(pygame.sprite.Sprite):
 
@@ -157,15 +158,24 @@ for i in range(2):
 
 
 clock = pygame.time.Clock()
-
 start_button = Button(100, 200, start_img, 0.8)
 exit_button = Button(115, 380, exit_img, 0.8)
 
+def read_pos(str):
+    str = str.split(",")
+    return int(str[0]), int(str[0])
+def make_pos(tup):
+    return str(tup[0] + "," + str(tup[1]))    
 
 def initGame():
+    #n = Network()
+    #startPos = read_pos(n.getPos())
+   
     bird_group.empty()
     bird = Bird()
+    bird2 = Bird()
     bird_group.add(bird)
+    bird_group.add(bird2)
 
     ground_group.empty()
     for i in range(2):
@@ -188,7 +198,9 @@ def initGame():
             if event.type == KEYDOWN:
                 if event.key == K_SPACE:
                     bird.bump()
-
+            if event.type == KEYDOWN:
+                if event.key == K_UP:
+                    bird2.bump()
         screen.blit(BACKGROUND, (0, 0))
 
         if is_off_screen(ground_group.sprites()[0]):
@@ -226,9 +238,10 @@ def initGame():
             return
         
 def show_menu():
+     
     run = True
     while run:
-
+        #p2Pos = n.send(make_pos((p.x.p.y)))
         screen.fill((202, 228, 241))
 
         if start_button.draw(screen):

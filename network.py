@@ -1,4 +1,3 @@
-
 import socket 
 
 server = "192.168.18.2" #ip do servidor
@@ -11,15 +10,18 @@ class Network:
         self.server = server
         self.port = port
         self.addr = (self.server,self.port)
-        self.id = self.connect()
-        self.connect()
-        print(self.id)
+        self.pos = self.connect()
+
     def connect(self):
         try:
             self.client.connect(self.addr)
             return self.client.recv(2048).decode()
         except:
             pass
+        
+    def getPos(self):
+        return self.pos
+    
     def send(self, data):
         try:
             self.client.send(str.encode(data))
