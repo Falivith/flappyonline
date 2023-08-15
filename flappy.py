@@ -5,8 +5,8 @@ from network import Network
 
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 800
-SPEED = 10
-GRAVITY = 1
+SPEED = 3
+GRAVITY = 0.1
 GAME_SPEED = 10
 
 GROUND_WIDTH = 2 * SCREEN_WIDTH
@@ -16,6 +16,8 @@ PIPE_WIDTH = 80
 PIPE_HEIGHT = 500
 
 PIPE_GAP = 200
+
+pygame.display.set_caption("Flappy Bird Online")
 
 class Button():
 	def __init__(self, x, y, image, scale):
@@ -168,17 +170,21 @@ def read_pos(str):
 def make_pos(tup):
     return str(tup[0]) + "," + str(tup[1])    
 
-def initGame(n):
-    startPos = read_pos(n.getPos())
+def initGame(n, player):
+
+    startPos = n.getPos()
     bird_group.empty()
+
+    #n.ready(player)
     
-    #bird = Bird((startPos[0],startPos[1]))
-    bird2 = Bird()
+    bird = Bird((startPos[0], startPos[1]))
+    bird2 = Bird((startPos[0], startPos[1]))
     
     bird_group.add(bird)
     bird_group.add(bird2)
 
     ground_group.empty()
+
     for i in range(2):
         ground = Ground(GROUND_WIDTH * i)
         ground_group.add(ground)
@@ -190,18 +196,22 @@ def initGame(n):
         pipe_group.add(pipes[1])
 
     while True:
+
         clock.tick(30)
+
         p2Pos = read_pos(n.send(make_pos((bird.rect[0],bird.rect[1]))))
+
         bird2.rect[0] = p2Pos[0]
         bird2.rect[1] = p2Pos[1]
         bird2.update()
+
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
 
             if event.type == KEYDOWN:
                 if event.key == K_SPACE:
-                    #bird.bump()
+                    bird.bump()
                     bird2.bump()
             #if event.type == KEYDOWN:
             #    if event.key == K_UP:
@@ -243,15 +253,16 @@ def initGame(n):
             return
         
 def start():
+
     n = Network()
-     
+    print(f"Posição do Player  <{n.player}> : <{n.getPos()}>")
     run = True
     while run:
         
         screen.fill((202, 228, 241))
 
         if start_button.draw(screen):
-            initGame(n)
+            initGame(n, n.player)
         
         if exit_button.draw(screen):
             pygame.quit()
