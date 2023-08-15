@@ -1,7 +1,7 @@
 import pygame, random
 import time
 from pygame.locals import *
-#from network import Network
+from network import Network
 
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 800
@@ -63,8 +63,9 @@ class Bird(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
 
         self.rect = self.image.get_rect()
-        self.rect[0] = startPos[0] #SCREEN_WIDTH / 3
-        self.rect[1] = startPos[1] #SCREEN_HEIGHT / 3
+
+        self.rect[0] = startPos[0] #x
+        self.rect[1] = startPos[1] #y
 
     def update(self):
         self.current_image = (self.current_image + 1) % 3
@@ -72,7 +73,7 @@ class Bird(pygame.sprite.Sprite):
 
         self.y += GRAVITY
 
-        # Update height
+        # Update y
         self.rect[1] += self.y
     
     def bump(self):
@@ -165,15 +166,15 @@ def read_pos(str):
     str = str.split(",")
     return int(str[0]), int(str[0])
 def make_pos(tup):
-    return str(tup[0] + "," + str(tup[1]))    
+    return str(tup[0]) + "," + str(tup[1])    
 
-def initGame():
-    #n = Network()
-    #startPos = read_pos(n.getPos())
-   
+def initGame(n):
+    startPos = read_pos(n.getPos())
     bird_group.empty()
-    bird = Bird()
+    
+    #bird = Bird((startPos[0],startPos[1]))
     bird2 = Bird()
+    
     bird_group.add(bird)
     bird_group.add(bird2)
 
@@ -190,17 +191,21 @@ def initGame():
 
     while True:
         clock.tick(30)
-        
+        p2Pos = read_pos(n.send(make_pos((bird.rect[0],bird.rect[1]))))
+        bird2.rect[0] = p2Pos[0]
+        bird2.rect[1] = p2Pos[1]
+        bird2.update()
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
 
             if event.type == KEYDOWN:
                 if event.key == K_SPACE:
-                    bird.bump()
-            if event.type == KEYDOWN:
-                if event.key == K_UP:
+                    #bird.bump()
                     bird2.bump()
+            #if event.type == KEYDOWN:
+            #    if event.key == K_UP:
+            #        bird2.bump()
         screen.blit(BACKGROUND, (0, 0))
 
         if is_off_screen(ground_group.sprites()[0]):
@@ -237,15 +242,16 @@ def initGame():
             time.sleep(1)
             return
         
-def show_menu():
+def start():
+    n = Network()
      
     run = True
     while run:
-        #p2Pos = n.send(make_pos((p.x.p.y)))
+        
         screen.fill((202, 228, 241))
 
         if start_button.draw(screen):
-            initGame()
+            initGame(n)
         
         if exit_button.draw(screen):
             pygame.quit()
@@ -260,4 +266,4 @@ def show_menu():
 
     pygame.quit()
 
-show_menu()
+start()
