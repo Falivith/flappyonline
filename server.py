@@ -29,7 +29,7 @@ def make_pos(tup):
 
 
 pos = [(200, 400), (205, 805)]
-
+readyflags = [False, False]
 
 def thread_client(conn, player, overflowFlag):
 
@@ -40,27 +40,30 @@ def thread_client(conn, player, overflowFlag):
         return
 
     # A primeira mensagem será uma tupla com a posição inicial e o número do player (1 ou 2)
-
     firstMessage = f"{player}:{pos[player]}"
 
-    conn.sendall(str.encode(firstMessage))
+    print(firstMessage)
 
-    reply = ""
+    ack = conn.send(str.encode(firstMessage))
+    print("ack", ack)
+
+    reply = (200, 400)
 
     while True:
         try:
             data = read_pos(conn.recv(2048).decode())
-            #reply = data.decode("utf-8")
+            print(data)
             pos[player] = data
+            print(pos[player])
             
             if not data:
                 print("Desconectado")
                 break
             else:
-                if player == 1:
+                if player == 0:
                     reply = pos[0]
-                    print(f"Recebendo de P0:", data)
-                    print(f"Enviando para P0", reply)
+                    print(f"Recebendo de P2:", data)
+                    print(f"Enviando para P2", reply)
                 else:
                     reply = pos[1]
                     print(f"Recebendo de P1:", data)
@@ -72,15 +75,11 @@ def thread_client(conn, player, overflowFlag):
     print(f"Conexao Perdida com Player {player + 1}")
     conn.close()
 
-    with currentPlayer_lock:
-        global currentPlayer
-        currentPlayer -= 1
+    global currentPlayer
+    currentPlayer -= 1
 
 
 currentPlayer = 0
-
-
-currentPlayer_lock = threading.Lock()
 
 while True:
     conn, addr = s.accept()
@@ -90,6 +89,7 @@ while True:
         print("Limite de 2 jogadores ultrapassado. Espere alguem desconectar")
         start_new_thread(thread_client, (conn, currentPlayer, True))
     else:
-        start_new_thread(thread_client, (conn,currentPlayer, False))
+        start_new_thread(thread_client, (conn, currentPlayer, False))
         currentPlayer += 1
         print("Jogador Adicionado: ", currentPlayer)
+

@@ -6,9 +6,9 @@ from network import Network
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 800
 
-SPEED = 5
-GRAVITY = 0.5
-GAME_SPEED = 5
+SPEED = 2
+GRAVITY = 0.2
+GAME_SPEED = 2
 
 GROUND_WIDTH = 2 * SCREEN_WIDTH
 GROUND_HEIGHT = 100
@@ -185,8 +185,6 @@ def initGame(n, player):
 
     startPos = n.getPos()
     bird_group.empty()
-
-    #n.ready(player)
     
     bird1 = Bird("blue", (startPos[0], startPos[1]))
     bird2 = Bird("yellow", (startPos[0], startPos[1]))
@@ -211,12 +209,37 @@ def initGame(n, player):
 
         clock.tick(30)
 
-        #p2Pos = read_pos(n.send(make_pos((bird1.rect[0],bird1.rect[1]))))
+        # Atualização da posição do player 2 no cliente do player 1
 
-        #bird2.rect[0] = p2Pos[0]
-        #bird2.rect[1] = p2Pos[1]
+        if (player == 0):
 
-        #bird2.update()
+            pos_str_tuple = make_pos((bird1.rect[0], bird1.rect[1]))
+            print("Tupla criada no cliente:", pos_str_tuple, " Tipo do dado: ", type(pos_str_tuple))
+            recv_str_tuple = n.send(pos_str_tuple)
+            print("Tupla recebida no cliente:", recv_str_tuple, " Tipo do dado: ", type(recv_str_tuple))
+            p2_pos = read_pos(recv_str_tuple)
+            print("Nova Posição Pronta:", p2_pos, " Tipo do dado: ", type(p2_pos))
+
+            bird2.rect[0] = p2_pos[0]
+            bird2.rect[1] = p2_pos[1]
+
+            bird2.update()
+
+        # Atualização da posição do player 1 no cliente do player 2
+
+        elif (player == 1):
+
+            pos_str_tuple = make_pos((bird2.rect[0], bird2.rect[1]))
+            print("Tupla criada no cliente:", pos_str_tuple, " Tipo do dado: ", type(pos_str_tuple))
+            recv_str_tuple = n.send(pos_str_tuple)
+            print("Tupla recebida no cliente:", recv_str_tuple, " Tipo do dado: ", type(recv_str_tuple))
+            p1_pos = read_pos(recv_str_tuple)
+            print("Nova Posição Pronta:", p1_pos, " Tipo do dado: ", type(p1_pos))
+
+            bird1.rect[0] = p1_pos[0]
+            bird1.rect[1] = p1_pos[1]
+
+            bird1.update()
 
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -224,9 +247,11 @@ def initGame(n, player):
 
             if event.type == KEYDOWN:
                 if event.key == K_SPACE:
-                    bird1.bump()
-                elif event.key == K_UP:
-                    bird2.bump()
+                    if player == 0:
+                        bird1.bump()
+                    else:
+                        bird2.bump()
+
         screen.blit(BACKGROUND, (0, 0))
 
         if is_off_screen(ground_group.sprites()[0]):
@@ -262,19 +287,20 @@ def initGame(n, player):
             pipe_group.empty()
             time.sleep(1)
             return
-        
+
 def start():
 
     n = Network()
     print(f"Posição do Player  <{n.player}> : <{n.getPos()}>")
     run = True
+
     while run:
-        
+
         screen.fill((202, 228, 241))
 
         if start_button.draw(screen):
-            initGame(n, n.player)
-        
+            initGame(n, int(n.player))
+
         if exit_button.draw(screen):
             pygame.quit()
 

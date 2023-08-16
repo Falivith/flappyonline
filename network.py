@@ -12,9 +12,8 @@ class Network:
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server = server
         self.port = port
-        self.addr = (self.server,self.port)
+        self.addr = (self.server, self.port)
         self.player, self.pos = self.connect()
-        self.ready_flags = [False, False]
 
     def connect(self):
         try:
