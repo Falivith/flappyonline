@@ -5,9 +5,10 @@ from network import Network
 
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 800
-SPEED = 3
-GRAVITY = 0.1
-GAME_SPEED = 10
+
+SPEED = 5
+GRAVITY = 0.5
+GAME_SPEED = 5
 
 GROUND_WIDTH = 2 * SCREEN_WIDTH
 GROUND_HEIGHT = 100
@@ -50,12 +51,22 @@ class Button():
 
 class Bird(pygame.sprite.Sprite):
 
-    def __init__(self,startPos=(SCREEN_WIDTH/2,SCREEN_HEIGHT/2)):
+    def __init__(self, color, startPos=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)):
         pygame.sprite.Sprite.__init__(self)
 
-        self.images = [pygame.image.load('bluebird-upflap.png').convert_alpha(),
-                       pygame.image.load('bluebird-midflap.png').convert_alpha(),
-                       pygame.image.load('bluebird-downflap.png').convert_alpha()]
+        bluebird_images = [
+            pygame.image.load('bluebird-upflap.png').convert_alpha(),
+            pygame.image.load('bluebird-midflap.png').convert_alpha(),
+            pygame.image.load('bluebird-downflap.png').convert_alpha()
+        ]
+
+        yellowbird_images = [
+            pygame.image.load('yellowbird-upflap.png').convert_alpha(),
+            pygame.image.load('yellowbird-midflap.png').convert_alpha(),
+            pygame.image.load('yellowbird-downflap.png').convert_alpha()
+        ]
+
+        self.images = bluebird_images if color == "blue" else yellowbird_images
         
         self.y = SPEED
 
@@ -145,8 +156,8 @@ BACKGROUND = pygame.image.load('background-day.png')
 BACKGROUND = pygame.transform.scale(BACKGROUND, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 bird_group = pygame.sprite.Group()
-bird = Bird()
-bird_group.add(bird)
+bird1 = Bird("blue")
+bird_group.add(bird1)
 
 ground_group = pygame.sprite.Group()
 for i in range(2):
@@ -177,10 +188,10 @@ def initGame(n, player):
 
     #n.ready(player)
     
-    bird = Bird((startPos[0], startPos[1]))
-    bird2 = Bird((startPos[0], startPos[1]))
+    bird1 = Bird("blue", (startPos[0], startPos[1]))
+    bird2 = Bird("yellow", (startPos[0], startPos[1]))
     
-    bird_group.add(bird)
+    bird_group.add(bird1)
     bird_group.add(bird2)
 
     ground_group.empty()
@@ -190,6 +201,7 @@ def initGame(n, player):
         ground_group.add(ground)
 
     pipe_group.empty()
+
     for i in range(2):
         pipes = get_random_pipes(SCREEN_WIDTH * i + 800)
         pipe_group.add(pipes[0])
@@ -199,11 +211,12 @@ def initGame(n, player):
 
         clock.tick(30)
 
-        p2Pos = read_pos(n.send(make_pos((bird.rect[0],bird.rect[1]))))
+        #p2Pos = read_pos(n.send(make_pos((bird1.rect[0],bird1.rect[1]))))
 
-        bird2.rect[0] = p2Pos[0]
-        bird2.rect[1] = p2Pos[1]
-        bird2.update()
+        #bird2.rect[0] = p2Pos[0]
+        #bird2.rect[1] = p2Pos[1]
+
+        #bird2.update()
 
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -211,11 +224,9 @@ def initGame(n, player):
 
             if event.type == KEYDOWN:
                 if event.key == K_SPACE:
-                    bird.bump()
+                    bird1.bump()
+                elif event.key == K_UP:
                     bird2.bump()
-            #if event.type == KEYDOWN:
-            #    if event.key == K_UP:
-            #        bird2.bump()
         screen.blit(BACKGROUND, (0, 0))
 
         if is_off_screen(ground_group.sprites()[0]):

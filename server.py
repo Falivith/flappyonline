@@ -16,7 +16,7 @@ except socket.error as e:
 
 s.listen(2)
 
-print("Esperando conexao, Servidor Inciado")
+print("Esperando conexões...")
 
 
 def read_pos(str):
