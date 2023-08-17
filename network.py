@@ -1,14 +1,14 @@
 import socket
 import constants
 
-server = constants.ip
+server = "192.168.18.2"
 port = 5555
 
 # -----------------Network----------------------#
 
 
 class Network:
-    def __init__(self, server = constants.ip, port = 5555):
+    def __init__(self, server = "192.168.18.2", port = 5555):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server = server
         self.port = port
@@ -27,6 +27,7 @@ class Network:
         
     def getPos(self):
         return self.pos
+    
     
     def send(self, data):
         try:

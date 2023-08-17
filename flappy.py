@@ -7,7 +7,7 @@ SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 800
 
 SPEED = 2
-GRAVITY = 0.2
+GRAVITY = 0
 GAME_SPEED = 2
 
 GROUND_WIDTH = 2 * SCREEN_WIDTH
@@ -18,7 +18,10 @@ PIPE_HEIGHT = 500
 
 PIPE_GAP = 200
 
+
+
 pygame.display.set_caption("Flappy Bird Online")
+pygame.init()
 
 class Button():
 	def __init__(self, x, y, image, scale):
@@ -51,7 +54,7 @@ class Button():
 
 class Bird(pygame.sprite.Sprite):
 
-    def __init__(self, color, startPos=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)):
+    def __init__(self, color, startPos=(SCREEN_WIDTH/ 2, SCREEN_HEIGHT/ 2)):
         pygame.sprite.Sprite.__init__(self)
 
         bluebird_images = [
@@ -67,78 +70,108 @@ class Bird(pygame.sprite.Sprite):
         ]
 
         self.images = bluebird_images if color == "blue" else yellowbird_images
-        
-        self.y = SPEED
-
         self.current_image = 0
-
         self.image = pygame.image.load('bluebird-upflap.png').convert_alpha()
         self.mask = pygame.mask.from_surface(self.image)
-
         self.rect = self.image.get_rect()
-
         self.rect[0] = startPos[0] #x
         self.rect[1] = startPos[1] #y
 
     def update(self):
         self.current_image = (self.current_image + 1) % 3
         self.image = self.images[ self.current_image ]
-
-        self.y += GRAVITY
-
         # Update y
-        self.rect[1] += self.y
+        self.rect[1] += GRAVITY
     
     def bump(self):
-        self.y = -SPEED
-
-class Pipe(pygame.sprite.Sprite):
-
-    def __init__(self, inverted, xpos, ysize):
-        pygame.sprite.Sprite.__init__(self)
-
-        self.image = pygame.image.load('pipe-red.png').convert_alpha()
-        self.image = pygame.transform.scale(self.image, (PIPE_WIDTH,PIPE_HEIGHT))
-
-        self.rect = self.image.get_rect()
-        self.rect[0] = xpos
-
-        if inverted:
-            self.image = pygame.transform.flip(self.image, False, True)
-            self.rect[1] = - (self.rect[3] - ysize)
-        else:
-            self.rect[1] = SCREEN_HEIGHT - ysize
-
-        self.mask = pygame.mask.from_surface(self.image)
-
-    def update(self):
-        self.rect[0] -= GAME_SPEED
-
-class Ground(pygame.sprite.Sprite):
-
-    def __init__(self, xpos):
-        pygame.sprite.Sprite.__init__(self)
-
-        self.image = pygame.image.load('base.png').convert_alpha()
-        self.image = pygame.transform.scale(self.image, (GROUND_WIDTH, GROUND_HEIGHT))
-
-        self.mask = pygame.mask.from_surface(self.image)
-
-        self.rect = self.image.get_rect()
-        self.rect[0] = xpos
-        self.rect[1] = SCREEN_HEIGHT - GROUND_HEIGHT
-    
-    def update(self):
-        self.rect[0] -= GAME_SPEED
+        keys = pygame.key.get_pressed()
+        
+        if keys[pygame.K_SPACE]:
+            self.rect[1] += -SPEED
 
 def is_off_screen(sprite):
     return sprite.rect[0] < -(sprite.rect[2])
 
-def get_random_pipes(xpos):
-    size = random.randint(100, 300)
-    pipe = Pipe(False, xpos, size)
-    pipe_inverted = Pipe(True, xpos, SCREEN_HEIGHT - size - PIPE_GAP)
-    return (pipe, pipe_inverted)
+class Pipe(pygame.sprite.Sprite):
+    def __init__():
+        pass
+    def __init__(self, inverted=None, xpos=None, ysize=None):
+        pygame.sprite.Sprite.__init__(self)
+        if xpos is None and inverted is None and ysize is None:
+            self.pipe_group = pygame.sprite.Group()
+            return
+        else:
+            self.image = pygame.image.load('pipe-red.png').convert_alpha()
+            self.image = pygame.transform.scale(self.image, (PIPE_WIDTH,PIPE_HEIGHT))
+            
+            self.rect = self.image.get_rect()
+            self.rect[0] = xpos
+
+            if inverted:
+                self.image = pygame.transform.flip(self.image, False, True)
+                self.rect[1] = -(self.rect[3] - ysize)
+            else:
+                self.rect[1] = SCREEN_HEIGHT - ysize
+
+            self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self):
+        self.rect[0] -= GAME_SPEED
+
+    def get_random_pipes(self,x=None):
+        if x is not None:
+            self.xpos = x
+        size = 300 #random.randint(100, 300)
+        print("xpos: ",self.xpos)
+        pipe = Pipe(False, self.xpos, size)
+        pipe_inverted = Pipe(True, self.xpos, SCREEN_HEIGHT - size - PIPE_GAP)
+        return (pipe, pipe_inverted)
+    
+    def generate_pipes(self):
+        for i in range(2):
+            self.xpos = SCREEN_WIDTH * i + 800
+            pipes = self.get_random_pipes()
+            self.pipe_group.add(pipes[0])
+            self.pipe_group.add(pipes[1])
+
+    def remove_pipes(self):
+        if is_off_screen(self.pipe_group.sprites()[0]):
+                self.pipe_group.remove(self.pipe_group.sprites()[0])
+                self.pipe_group.remove(self.pipe_group.sprites()[0])
+
+                pipes = self.get_random_pipes(SCREEN_WIDTH * 2)
+
+                self.pipe_group.add(pipes[0])
+                self.pipe_group.add(pipes[1])
+
+class Ground(pygame.sprite.Sprite):
+    def __init__(self, xpos=None):
+        pygame.sprite.Sprite.__init__(self)
+        if xpos is None:
+            self.ground_group = pygame.sprite.Group()
+            return
+        else:
+            self.image = pygame.image.load('base.png').convert_alpha()
+            self.image = pygame.transform.scale(self.image, (GROUND_WIDTH, GROUND_HEIGHT))
+
+            self.mask = pygame.mask.from_surface(self.image)
+
+            self.rect = self.image.get_rect()
+            self.rect[0] = xpos
+            self.rect[1] = SCREEN_HEIGHT - GROUND_HEIGHT
+        
+    def update(self):
+        self.rect[0] -= GAME_SPEED
+    def generate_ground(self):
+        for i in range(2):
+            ground = Ground(GROUND_WIDTH * i)
+            self.ground_group.add(ground)
+    def remove_ground(self):
+        if is_off_screen(self.ground_group.sprites()[0]):
+                self.ground_group.remove(self.ground_group.sprites()[0])
+
+                new_ground = Ground(GROUND_WIDTH - 20)
+                self.ground_group.add(new_ground)
 
 def restart_button():
     pygame.draw.rect(screen, 255, 0, 0, (350, 250, 100, 50))
@@ -146,160 +179,102 @@ def restart_button():
     texto = fonte.render("Restart", True, (255, 255, 255))
     screen.blit(texto, (360, 260))
 
-pygame.init()
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
-start_img = pygame.image.load('start_btn.png').convert_alpha()
-exit_img = pygame.image.load('exit_btn.png').convert_alpha()
-
-BACKGROUND = pygame.image.load('background-day.png')
-BACKGROUND = pygame.transform.scale(BACKGROUND, (SCREEN_WIDTH, SCREEN_HEIGHT))
-
-bird_group = pygame.sprite.Group()
-bird1 = Bird("blue")
-bird_group.add(bird1)
-
-ground_group = pygame.sprite.Group()
-for i in range(2):
-    ground = Ground(GROUND_WIDTH * i)
-    ground_group.add(ground)
-
-pipe_group = pygame.sprite.Group()
-for i in range(2):
-    pipes = get_random_pipes(SCREEN_WIDTH * i + 800)
-    pipe_group.add(pipes[0])
-    pipe_group.add(pipes[1])
-
-
-clock = pygame.time.Clock()
-start_button = Button(100, 200, start_img, 0.8)
-exit_button = Button(115, 380, exit_img, 0.8)
-
 def read_pos(str):
-    str = str.split(",")
-    return int(str[0]), int(str[0])
+    #str = str.split(",")
+    #return int(str[0]), int(str[0])
+    x_str, y_str = str.split(',')
+    x = int(x_str)
+    y = int(y_str)
+    return x, y
 def make_pos(tup):
     return str(tup[0]) + "," + str(tup[1])    
 
-def initGame(n, player):
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+bird_group = pygame.sprite.Group()
+
+def initGame(n):
+    clock = pygame.time.Clock()
+    pipes = Pipe()
+    ground = Ground()
+    
+    BACKGROUND = pygame.image.load('background-day.png')
+    BACKGROUND = pygame.transform.scale(BACKGROUND, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    
+    pipes.generate_pipes()
+    ground.generate_ground()
 
     startPos = n.getPos()
-    bird_group.empty()
+    #bird_group.empty()
     
     bird1 = Bird("blue", (startPos[0], startPos[1]))
-    bird2 = Bird("yellow", (startPos[0], startPos[1]))
-    
+    bird2 = Bird("yellow", (205, 405))
     bird_group.add(bird1)
     bird_group.add(bird2)
 
-    ground_group.empty()
-
-    for i in range(2):
-        ground = Ground(GROUND_WIDTH * i)
-        ground_group.add(ground)
-
-    pipe_group.empty()
-
-    for i in range(2):
-        pipes = get_random_pipes(SCREEN_WIDTH * i + 800)
-        pipe_group.add(pipes[0])
-        pipe_group.add(pipes[1])
-
     while True:
+        clock.tick(60)
+        pygame.display.update()
 
-        clock.tick(30)
-
-        # Atualização da posição do player 2 no cliente do player 1
-
-        if (player == 0):
-
-            pos_str_tuple = make_pos((bird1.rect[0], bird1.rect[1]))
-            print("Tupla criada no cliente:", pos_str_tuple, " Tipo do dado: ", type(pos_str_tuple))
-            recv_str_tuple = n.send(pos_str_tuple)
-            print("Tupla recebida no cliente:", recv_str_tuple, " Tipo do dado: ", type(recv_str_tuple))
-            p2_pos = read_pos(recv_str_tuple)
-            print("Nova Posição Pronta:", p2_pos, " Tipo do dado: ", type(p2_pos))
-
-            bird2.rect[0] = p2_pos[0]
-            bird2.rect[1] = p2_pos[1]
-
-            bird2.update()
-
-        # Atualização da posição do player 1 no cliente do player 2
-
-        elif (player == 1):
-
-            pos_str_tuple = make_pos((bird2.rect[0], bird2.rect[1]))
-            print("Tupla criada no cliente:", pos_str_tuple, " Tipo do dado: ", type(pos_str_tuple))
-            recv_str_tuple = n.send(pos_str_tuple)
-            print("Tupla recebida no cliente:", recv_str_tuple, " Tipo do dado: ", type(recv_str_tuple))
-            p1_pos = read_pos(recv_str_tuple)
-            print("Nova Posição Pronta:", p1_pos, " Tipo do dado: ", type(p1_pos))
-
-            bird1.rect[0] = p1_pos[0]
-            bird1.rect[1] = p1_pos[1]
-
-            bird1.update()
+        pos_str_tuple = make_pos((bird1.rect[0], bird1.rect[1]))
+        print("Envio: ",  pos_str_tuple)
+        recv_str_tuple = n.send(pos_str_tuple)
+        p2_pos = read_pos(recv_str_tuple)
+        bird2.y = p2_pos[1]
+        bird2.update()
 
         for event in pygame.event.get():
-            if event.type == QUIT:
+            if event.type ==   QUIT:
                 pygame.quit()
+        
+        bird1.bump()
 
-            if event.type == KEYDOWN:
-                if event.key == K_SPACE:
-                    if player == 0:
-                        bird1.bump()
-                    else:
-                        bird2.bump()
+        bird_group.update()
+        ground.ground_group.update()
+        pipes.pipe_group.update()
 
         screen.blit(BACKGROUND, (0, 0))
 
-        if is_off_screen(ground_group.sprites()[0]):
-            ground_group.remove(ground_group.sprites()[0])
-
-            new_ground = Ground(GROUND_WIDTH - 20)
-            ground_group.add(new_ground)
-
-        if is_off_screen(pipe_group.sprites()[0]):
-            pipe_group.remove(pipe_group.sprites()[0])
-            pipe_group.remove(pipe_group.sprites()[0])
-
-            pipes = get_random_pipes(SCREEN_WIDTH * 2)
-
-            pipe_group.add(pipes[0])
-            pipe_group.add(pipes[1])
-
-        bird_group.update()
-        ground_group.update()
-        pipe_group.update()
+        pipes.remove_pipes()
+        ground.remove_ground()
 
         bird_group.draw(screen)
-        pipe_group.draw(screen)
-        ground_group.draw(screen)
+        pipes.pipe_group.draw(screen)
+        ground.ground_group.draw(screen)
 
         pygame.display.update()
 
-        if (pygame.sprite.groupcollide(bird_group, ground_group, False, False, pygame.sprite.collide_mask) or
-                pygame.sprite.groupcollide(bird_group, pipe_group, False, False, pygame.sprite.collide_mask)):
+        if (pygame.sprite.groupcollide(bird_group, ground.ground_group, False, False, pygame.sprite.collide_mask) or
+                pygame.sprite.groupcollide(bird_group, pipes.pipe_group, False, False, pygame.sprite.collide_mask)):
             # Game over
             bird_group.empty()
-            ground_group.empty()
-            pipe_group.empty()
+            ground.ground_group.empty()
+            pipes.pipe_group.empty()
             time.sleep(1)
             return
-
+        
 def start():
+    start_img = pygame.image.load('start_btn.png').convert_alpha()
+    exit_img = pygame.image.load('exit_btn.png').convert_alpha()
+    start_button = Button(100, 200, start_img, 0.8)
+    exit_button = Button(115, 380, exit_img, 0.8)
 
     n = Network()
     print(f"Posição do Player  <{n.player}> : <{n.getPos()}>")
+
     run = True
 
     while run:
-
         screen.fill((202, 228, 241))
-
+        
         if start_button.draw(screen):
-            initGame(n, int(n.player))
+
+            pos_str_tuple = make_pos((1,1))
+            print("Envio: ",  pos_str_tuple)
+            recv_str_tuple = n.send(pos_str_tuple)
+            p2_pos = read_pos(recv_str_tuple)
+
+            if p2_pos != "None":
+                initGame(n)
 
         if exit_button.draw(screen):
             pygame.quit()
@@ -312,6 +287,6 @@ def start():
 
         pygame.display.update()
 
-    pygame.quit()
+    pygame.quit() 
 
 start()

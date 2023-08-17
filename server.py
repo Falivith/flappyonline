@@ -1,9 +1,9 @@
 import socket 
 from _thread import *
 import constants
-import threading
+from threading import Event
 
-server = constants.ip
+server =  "192.168.18.2"
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -14,31 +14,35 @@ except socket.error as e:
     print("Mensagem de Erro: ", e)
     str(e)
 
-s.listen(2)
+s.listen()
 
 print("Esperando conexões...")
-
+games ={}
+idCount = 0
 
 def read_pos(str):
-    str = str.split(",")
-    return int(str[0]), int(str[0])
-
+    #str = str.split(",")
+    #return int(str[0]), int(str[0])
+    x_str, y_str = str.split(',')
+    x = int(x_str)
+    y = int(y_str)
+    return x, y
 
 def make_pos(tup):
     return str(tup[0]) + "," + str(tup[1])    
 
+pos = [(200, 400), (205, 405)]
 
-pos = [(200, 400), (205, 805)]
-readyflags = [False, False]
+def thread_client(conn, player):
+    global idCount
 
-def thread_client(conn, player, overflowFlag):
-
+    """
     if overflowFlag:
         conn.send("Error: User Overflow")
         print(f"Conexão Perdida <{conn}>")
         conn.close()
         return
-
+    """
     # A primeira mensagem será uma tupla com a posição inicial e o número do player (1 ou 2)
     firstMessage = f"{player}:{pos[player]}"
 
@@ -47,49 +51,42 @@ def thread_client(conn, player, overflowFlag):
     ack = conn.send(str.encode(firstMessage))
     print("ack", ack)
 
-    reply = (200, 400)
+    reply = (0,0)
 
     while True:
         try:
             data = read_pos(conn.recv(2048).decode())
-            print(data)
-            pos[player] = data
-            print(pos[player])
-            
-            if not data:
-                print("Desconectado")
-                break
-            else:
+            print("DATA: ", data)
+            if idCount >= 2:
+                pos[player] = data
                 if player == 0:
                     reply = pos[0]
-                    print(f"Recebendo de P2:", data)
-                    print(f"Enviando para P2", reply)
                 else:
                     reply = pos[1]
-                    print(f"Recebendo de P1:", data)
-                    print(f"Enviando para P1", reply)
-
+                            
+                print(f"Recebendo:", data)
+                print(f"Enviando", reply)
             conn.sendall(str.encode(make_pos(reply)))
         except:
             break
     print(f"Conexao Perdida com Player {player + 1}")
     conn.close()
 
-    global currentPlayer
-    currentPlayer -= 1
-
-
 currentPlayer = 0
 
 while True:
     conn, addr = s.accept()
+    
+    idCount +=1
+    p=0
     print("Conectado ao: ", addr)
 
-    if(currentPlayer + 1 > 2):
-        print("Limite de 2 jogadores ultrapassado. Espere alguem desconectar")
-        start_new_thread(thread_client, (conn, currentPlayer, True))
-    else:
-        start_new_thread(thread_client, (conn, currentPlayer, False))
-        currentPlayer += 1
-        print("Jogador Adicionado: ", currentPlayer)
+    start_new_thread(thread_client, (conn, currentPlayer))
+    #if(currentPlayer + 1 > 2):
+    #    print("Limite de 2 jogadores ultrapassado. Espere alguem desconectar")
+    #    start_new_thread(thread_client, (conn, currentPlayer, True))
+    #else:
+    #    start_new_thread(thread_client, (conn, currentPlayer, False))
+    currentPlayer += 1
+    #    print("Jogador Adicionado: ", currentPlayer)
 
