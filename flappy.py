@@ -8,7 +8,7 @@ SCREEN_HEIGHT = 800
 
 SPEED = 2
 GRAVITY = 0
-GAME_SPEED = 2
+GAME_SPEED = 0
 
 GROUND_WIDTH = 2 * SCREEN_WIDTH
 GROUND_HEIGHT = 100
@@ -204,10 +204,13 @@ def initGame(n):
     ground.generate_ground()
 
     startPos = n.getPos()
-    #bird_group.empty()
-    
-    bird1 = Bird("blue", (startPos[0], startPos[1]))
+    bird_group.empty()
+
+    print("StartPos", startPos)
+
+    bird1 = Bird("blue", (205, 405))
     bird2 = Bird("yellow", (205, 405))
+
     bird_group.add(bird1)
     bird_group.add(bird2)
 
@@ -216,19 +219,24 @@ def initGame(n):
         pygame.display.update()
 
         pos_str_tuple = make_pos((bird1.rect[0], bird1.rect[1]))
+
         print("Envio: ",  pos_str_tuple)
         recv_str_tuple = n.send(pos_str_tuple)
         p2_pos = read_pos(recv_str_tuple)
-        bird2.y = p2_pos[1]
-        bird2.update()
+        print("Recebi: ", p2_pos)
+
+        bird2.rect[0] = p2_pos[0]
+        bird2.rect[1] = p2_pos[1]
+
+        bird_group.update()
 
         for event in pygame.event.get():
             if event.type ==   QUIT:
                 pygame.quit()
-        
+
         bird1.bump()
 
-        bird_group.update()
+        #bird_group.update()
         ground.ground_group.update()
         pipes.pipe_group.update()
 
@@ -259,7 +267,6 @@ def start():
     exit_button = Button(115, 380, exit_img, 0.8)
 
     n = Network()
-    print(f"Posição do Player  <{n.player}> : <{n.getPos()}>")
 
     run = True
 

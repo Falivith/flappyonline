@@ -3,7 +3,7 @@ from _thread import *
 import constants
 from threading import Event
 
-server =  "192.168.18.2"
+server =  "172.19.208.1"
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -29,9 +29,9 @@ def read_pos(str):
     return x, y
 
 def make_pos(tup):
-    return str(tup[0]) + "," + str(tup[1])    
+    return str(tup[0]) + "," + str(tup[1])
 
-pos = [(200, 400), (205, 405)]
+pos = [(200, 200), (200, 200)]
 
 def thread_client(conn, player):
     global idCount
@@ -46,7 +46,7 @@ def thread_client(conn, player):
     # A primeira mensagem será uma tupla com a posição inicial e o número do player (1 ou 2)
     firstMessage = f"{player}:{pos[player]}"
 
-    print(firstMessage)
+    print("Primeira Mensagem: ", firstMessage)
 
     ack = conn.send(str.encode(firstMessage))
     print("ack", ack)
@@ -56,10 +56,10 @@ def thread_client(conn, player):
     while True:
         try:
             data = read_pos(conn.recv(2048).decode())
-            print("DATA: ", data)
+
             if idCount >= 2:
                 pos[player] = data
-                if player == 0:
+                if player == 1:
                     reply = pos[0]
                 else:
                     reply = pos[1]
@@ -70,6 +70,10 @@ def thread_client(conn, player):
         except:
             break
     print(f"Conexao Perdida com Player {player + 1}")
+
+    global currentPlayer
+    currentPlayer -= 1
+
     conn.close()
 
 currentPlayer = 0
