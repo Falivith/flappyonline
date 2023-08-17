@@ -1,14 +1,14 @@
 import socket
-import constants
+from config import ip, port, convert_string_in_tuple
 
-server = constants.ip
-port = 5555
+server = ip
+port = port
 
 # -----------------Network----------------------#
 
 
 class Network:
-    def __init__(self, server = constants.ip, port = 5555):
+    def __init__(self, server = ip, port = 5555):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server = server
         self.port = port
@@ -20,7 +20,7 @@ class Network:
             self.client.connect(self.addr)
             response = self.client.recv(2048).decode()
             player_and_pos = response.split(":")
-            return player_and_pos[0], constants.convert_string_in_tuple(player_and_pos[1])
+            return player_and_pos[0], convert_string_in_tuple(player_and_pos[1])
         except:
             print("Erro na conexão com o servidor.")
             pass

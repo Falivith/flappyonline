@@ -1,4 +1,14 @@
+# IPV4 da sua máquina
+
 ip = "172.19.208.1"
+port = 5555
+
+
+def read_pos(str):
+    x_str, y_str = str.split(',')
+    x = int(x_str)
+    y = int(y_str)
+    return x, y
 
 
 def make_pos(tup):

@@ -1,5 +1,6 @@
 import pygame, random
 import time
+from config import make_pos, read_pos
 from pygame.locals import *
 from network import Network
 
@@ -58,20 +59,20 @@ class Bird(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
 
         bluebird_images = [
-            pygame.image.load('bluebird-upflap.png').convert_alpha(),
-            pygame.image.load('bluebird-midflap.png').convert_alpha(),
-            pygame.image.load('bluebird-downflap.png').convert_alpha()
+            pygame.image.load('assets/bluebird-upflap.png').convert_alpha(),
+            pygame.image.load('assets/bluebird-midflap.png').convert_alpha(),
+            pygame.image.load('assets/bluebird-downflap.png').convert_alpha()
         ]
 
         yellowbird_images = [
-            pygame.image.load('yellowbird-upflap.png').convert_alpha(),
-            pygame.image.load('yellowbird-midflap.png').convert_alpha(),
-            pygame.image.load('yellowbird-downflap.png').convert_alpha()
+            pygame.image.load('assets/yellowbird-upflap.png').convert_alpha(),
+            pygame.image.load('assets/yellowbird-midflap.png').convert_alpha(),
+            pygame.image.load('assets/yellowbird-downflap.png').convert_alpha()
         ]
 
         self.images = bluebird_images if color == "blue" else yellowbird_images
         self.current_image = 0
-        self.image = pygame.image.load('bluebird-upflap.png').convert_alpha()
+        self.image = pygame.image.load('assets/bluebird-upflap.png').convert_alpha()
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
         self.rect[0] = startPos[0] #x
@@ -101,7 +102,7 @@ class Pipe(pygame.sprite.Sprite):
             self.pipe_group = pygame.sprite.Group()
             return
         else:
-            self.image = pygame.image.load('pipe-red.png').convert_alpha()
+            self.image = pygame.image.load('assets/pipe-red.png').convert_alpha()
             self.image = pygame.transform.scale(self.image, (PIPE_WIDTH,PIPE_HEIGHT))
             
             self.rect = self.image.get_rect()
@@ -151,7 +152,7 @@ class Ground(pygame.sprite.Sprite):
             self.ground_group = pygame.sprite.Group()
             return
         else:
-            self.image = pygame.image.load('base.png').convert_alpha()
+            self.image = pygame.image.load('assets/base.png').convert_alpha()
             self.image = pygame.transform.scale(self.image, (GROUND_WIDTH, GROUND_HEIGHT))
 
             self.mask = pygame.mask.from_surface(self.image)
@@ -179,16 +180,6 @@ def restart_button():
     texto = fonte.render("Restart", True, (255, 255, 255))
     screen.blit(texto, (360, 260))
 
-def read_pos(str):
-    #str = str.split(",")
-    #return int(str[0]), int(str[0])
-    x_str, y_str = str.split(',')
-    x = int(x_str)
-    y = int(y_str)
-    return x, y
-def make_pos(tup):
-    return str(tup[0]) + "," + str(tup[1])    
-
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 bird_group = pygame.sprite.Group()
 
@@ -197,7 +188,7 @@ def initGame(n):
     pipes = Pipe()
     ground = Ground()
     
-    BACKGROUND = pygame.image.load('background-day.png')
+    BACKGROUND = pygame.image.load('assets/background-day.png')
     BACKGROUND = pygame.transform.scale(BACKGROUND, (SCREEN_WIDTH, SCREEN_HEIGHT))
     
     pipes.generate_pipes()
@@ -261,8 +252,8 @@ def initGame(n):
             return
         
 def start():
-    start_img = pygame.image.load('start_btn.png').convert_alpha()
-    exit_img = pygame.image.load('exit_btn.png').convert_alpha()
+    start_img = pygame.image.load('assets/start_btn.png').convert_alpha()
+    exit_img = pygame.image.load('assets/exit_btn.png').convert_alpha()
     start_button = Button(100, 200, start_img, 0.8)
     exit_button = Button(115, 380, exit_img, 0.8)
 

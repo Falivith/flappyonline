@@ -1,9 +1,9 @@
-import socket 
-from _thread import *
-import constants
+import socket
+from config import make_pos, read_pos, ip
 from threading import Event
+from _thread import *
 
-server =  "172.19.208.1"
+server =  ip
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -19,17 +19,6 @@ s.listen()
 print("Esperando conexões...")
 games ={}
 idCount = 0
-
-def read_pos(str):
-    #str = str.split(",")
-    #return int(str[0]), int(str[0])
-    x_str, y_str = str.split(',')
-    x = int(x_str)
-    y = int(y_str)
-    return x, y
-
-def make_pos(tup):
-    return str(tup[0]) + "," + str(tup[1])
 
 pos = [(200, 200), (200, 200)]
 
