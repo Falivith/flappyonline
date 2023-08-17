@@ -21,13 +21,11 @@ class Network:
             response = self.client.recv(2048).decode()
             player_and_pos = response.split(":")
             return player_and_pos[0], convert_string_in_tuple(player_and_pos[1])
-        except:
-            print("Erro na conexão com o servidor.")
-            pass
+        except Exception as e:
+            print(f"An error occurred during connection: {e}")
         
     def getPos(self):
         return self.pos
-
 
     def send(self, data):
         try:
@@ -36,8 +34,11 @@ class Network:
         except socket.error as e:
             print(e)
 
-    #def ready(self, player):
-    #    self.ready_flags[player] = True
-    #    return all(self.ready_flags)  # Return True if both players are ready
+    def ready(self):
+        try:
+            self.client.send(b"Ready")
+            return self.client.recv(2048).decode()
+        except socket.error as e:
+            print(e)
 
 # --------------- End Network-------------------#

@@ -7,9 +7,9 @@ from network import Network
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 800
 
-SPEED = 2
-GRAVITY = 0
-GAME_SPEED = 0
+SPEED = 5
+GRAVITY = 2
+GAME_SPEED = 5
 
 GROUND_WIDTH = 2 * SCREEN_WIDTH
 GROUND_HEIGHT = 100
@@ -18,8 +18,6 @@ PIPE_WIDTH = 80
 PIPE_HEIGHT = 500
 
 PIPE_GAP = 200
-
-
 
 pygame.display.set_caption("Flappy Bird Online")
 pygame.init()
@@ -51,7 +49,6 @@ class Button():
 		surface.blit(self.image, (self.rect.x, self.rect.y))
 
 		return action
-
 
 class Bird(pygame.sprite.Sprite):
 
@@ -86,7 +83,7 @@ class Bird(pygame.sprite.Sprite):
     
     def bump(self):
         keys = pygame.key.get_pressed()
-        
+
         if keys[pygame.K_SPACE]:
             self.rect[1] += -SPEED
 
@@ -214,6 +211,7 @@ def initGame(n):
         print("Envio: ",  pos_str_tuple)
         recv_str_tuple = n.send(pos_str_tuple)
         p2_pos = read_pos(recv_str_tuple)
+
         print("Recebi: ", p2_pos)
 
         bird2.rect[0] = p2_pos[0]
@@ -227,7 +225,6 @@ def initGame(n):
 
         bird1.bump()
 
-        #bird_group.update()
         ground.ground_group.update()
         pipes.pipe_group.update()
 
@@ -271,13 +268,15 @@ def start():
         
         if start_button.draw(screen):
 
-            pos_str_tuple = make_pos((1,1))
-            print("Envio: ",  pos_str_tuple)
-            recv_str_tuple = n.send(pos_str_tuple)
-            p2_pos = read_pos(recv_str_tuple)
+            print("Waiting")
 
-            if p2_pos != "None":
-                initGame(n)
+            while n.ready() == "Not":
+                time.sleep(0.1)
+                pass
+
+            print("Started")
+
+            initGame(n)
 
         if exit_button.draw(screen):
             pygame.quit()

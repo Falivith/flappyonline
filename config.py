@@ -5,6 +5,10 @@ port = 5555
 
 
 def read_pos(str):
+
+    if str is None or "," not in str:
+        return 200, 200
+
     x_str, y_str = str.split(',')
     x = int(x_str)
     y = int(y_str)
