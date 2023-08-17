@@ -252,8 +252,12 @@ def initGame(n):
             return
         
 def start():
+    bg = pygame.image.load("assets/background-day.png").convert_alpha()
+    bg = pygame.transform.scale(bg, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
     start_img = pygame.image.load('assets/start_btn.png').convert_alpha()
     exit_img = pygame.image.load('assets/exit_btn.png').convert_alpha()
+
     start_button = Button(100, 200, start_img, 0.8)
     exit_button = Button(115, 380, exit_img, 0.8)
 
@@ -262,7 +266,8 @@ def start():
     run = True
 
     while run:
-        screen.fill((202, 228, 241))
+
+        screen.blit(bg, (0, 0))
         
         if start_button.draw(screen):
 
