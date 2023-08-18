@@ -5,6 +5,7 @@ from flappy import Pipe,Ground,Bird,Button,screen, SCREEN_HEIGHT,SCREEN_WIDTH
 from pygame.locals import *
 from network import Network
 
+
 pygame.display.set_caption("Flappy Bird Online")
 pygame.init()
 
@@ -72,6 +73,7 @@ def initGame(n):
         if (pygame.sprite.groupcollide(bird_group, ground.ground_group, False, False, pygame.sprite.collide_mask) or
                 pygame.sprite.groupcollide(bird_group, pipes.pipe_group, False, False, pygame.sprite.collide_mask)):
             # Game over
+            n.send(make_pos((-1, -1)))
             bird_group.empty()
             ground.ground_group.empty()
             pipes.pipe_group.empty()
@@ -87,7 +89,7 @@ def start():
 
     start_button = Button(100, 200, start_img, 0.8)
     exit_button = Button(115, 380, exit_img, 0.8)
-
+ 
     n = Network()
 
     run = True
@@ -107,7 +109,7 @@ def start():
             print("Started")
 
             initGame(n)
-
+            
         if exit_button.draw(screen):
             pygame.quit()
 

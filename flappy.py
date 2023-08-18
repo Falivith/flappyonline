@@ -18,6 +18,7 @@ PIPE_WIDTH = 80
 PIPE_HEIGHT = 500
 
 PIPE_GAP = 200
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 class Button():
 	def __init__(self, x, y, image, scale):
@@ -174,4 +175,3 @@ def restart_button():
     texto = fonte.render("Restart", True, (255, 255, 255))
     screen.blit(texto, (360, 260))
 
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))

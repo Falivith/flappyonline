@@ -39,45 +39,52 @@ def thread_client(conn, player):
     reply = (0,0)
 
     data1 = ""
-
-    while data1 != "Ready":
-        data1 = conn.recv(2048).decode()
-        conn.send(b"Not")
-        print(f"Não enviado para {player + 1}")
-
-    players_ready[player] = True
-    print(f"Player {player + 1} pronto.")
-
-    while not all(players_ready):
-        pass
-
-    conn.send(b"Yes")
-    print(f"Início do jogo.")
-
-    conn.recv(2048).decode()
-
     while True:
         try:
+            while data1 != "Ready":
+                data1 = conn.recv(2048).decode()
+                conn.send(b"Not")
+                print(f"Não enviado para {player + 1}")
 
-            data = read_pos(conn.recv(2048).decode())
+            players_ready[player] = True
+            print(f"Player {player + 1} pronto.")
 
-            if idCount >= 2:
-                pos[player] = data
-                if player == 1:
-                    reply = pos[0]
-                else:
-                    reply = pos[1]
-                            
-                print(f"Recebendo:", data)
-                print(f"Enviando", reply)
-            conn.sendall(str.encode(make_pos(reply)))
+            while not all(players_ready):
+                pass
+
+            conn.send(b"Yes")
+            print(f"Início do jogo.")
+
+            conn.recv(2048).decode()
         except:
             break
+
+        while True:
+            try:
+                data = read_pos(conn.recv(2048).decode())
+                print(data)
+                if idCount >= 2:
+                    if data == (-1,-1):
+                        players_ready[player] = False
+                        return
+                    else:
+                        pos[player] = data
+                        if player == 1:
+                            reply = pos[0]
+                        else:
+                            reply = pos[1]
+                                    
+                        print(f"Recebendo:", data)
+                        print(f"Enviando", reply)
+                    conn.sendall(str.encode(make_pos(reply)))
+            except:
+                break
+
+        
     print(f"Conexao Perdida com Player {player + 1}")
 
     global currentPlayer
     currentPlayer -= 1
-    players_ready[player] = False
     conn.close()
 
 currentPlayer = 0
