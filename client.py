@@ -12,6 +12,7 @@ pygame.init()
 bird_group = pygame.sprite.Group()
 
 def initGame(n):
+    random.seed(0)
     clock = pygame.time.Clock()
     pipes = Pipe()
     ground = Ground()
@@ -110,6 +111,7 @@ def start():
             print("Started")
 
             initGame(n)
+
 
         if exit_button.draw(screen):
             pygame.quit()
