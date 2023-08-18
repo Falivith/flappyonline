@@ -6,6 +6,6 @@ https://docs.google.com/document/d/11mil3Rxo3aXcRY10KA4P8kUiL3-Ei9I1MVCAcj3eTX0/
 
 # To Run
 
--> Executar codigo server.py
--> Executar 2 vezes client.py
--> Clicar em Start nos dois clientes
+1. Executar codigo server.py
+2. Executar 2 vezes client.py
+3. Clicar em Start nos dois clientes
