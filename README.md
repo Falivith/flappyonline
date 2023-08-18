@@ -32,11 +32,11 @@ A troca de informações entre os jogadores é estabelecida por meio de sockets,
 ## 🔖 Executando o jogo
 
 1. Definindo IP local
-   1.1 Abrir o codigo Config.py
-   1.2 Definir IP = "seu endereço de IP"
-2. Executar codigo server.py
-3. Executar 2 vezes client.py
-4. Clicar em Start nos dois clientes
+2. Abrir o codigo Config.py
+3. Definir IP = "seu endereço de IP"
+4. Executar codigo server.py
+5. Executar 2 vezes client.py
+6. Clicar em Start nos dois clientes
 
 
 ## 👥 Colaboração
