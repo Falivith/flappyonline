@@ -16,7 +16,7 @@ GROUND_HEIGHT = 100
 
 PIPE_WIDTH = 80
 PIPE_HEIGHT = 500
-
+random.seed(0)
 PIPE_GAP = 200
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
@@ -117,7 +117,7 @@ class Pipe(pygame.sprite.Sprite):
     def get_random_pipes(self,x=None):
         if x is not None:
             self.xpos = x
-        size = 300 #random.randint(100, 300)
+        size = random.randint(100, 300)
         print("xpos: ",self.xpos)
         pipe = Pipe(False, self.xpos, size)
         pipe_inverted = Pipe(True, self.xpos, SCREEN_HEIGHT - size - PIPE_GAP)

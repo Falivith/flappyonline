@@ -42,7 +42,8 @@ def initGame(n):
         print("Envio: ",  pos_str_tuple)
         recv_str_tuple = n.send(pos_str_tuple)
         p2_pos = read_pos(recv_str_tuple)
-
+        if p2_pos == (0,0):
+            break
         print("Recebi: ", p2_pos)
 
         bird2.rect[0] = p2_pos[0]
@@ -51,7 +52,7 @@ def initGame(n):
         bird_group.update()
 
         for event in pygame.event.get():
-            if event.type ==   QUIT:
+            if event.type ==  QUIT:
                 pygame.quit()
 
         bird1.bump()
@@ -73,7 +74,8 @@ def initGame(n):
         if (pygame.sprite.groupcollide(bird_group, ground.ground_group, False, False, pygame.sprite.collide_mask) or
                 pygame.sprite.groupcollide(bird_group, pipes.pipe_group, False, False, pygame.sprite.collide_mask)):
             # Game over
-            n.send(make_pos((-1, -1)))
+            n.send(make_pos((0, 0)))
+
             bird_group.empty()
             ground.ground_group.empty()
             pipes.pipe_group.empty()
@@ -89,9 +91,8 @@ def start():
 
     start_button = Button(100, 200, start_img, 0.8)
     exit_button = Button(115, 380, exit_img, 0.8)
- 
-    n = Network()
 
+    n = Network()
     run = True
 
     while run:
@@ -109,7 +110,7 @@ def start():
             print("Started")
 
             initGame(n)
-            
+
         if exit_button.draw(screen):
             pygame.quit()
 

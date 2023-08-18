@@ -3,9 +3,7 @@ from config import ip, port, convert_string_in_tuple
 
 server = ip
 port = port
-
 # -----------------Network----------------------#
-
 
 class Network:
     def __init__(self, server = ip, port = 5555):
@@ -37,7 +35,9 @@ class Network:
     def ready(self):
         try:
             self.client.send(b"Ready")
-            return self.client.recv(2048).decode()
+            retorno = self.client.recv(2048).decode()
+            print(retorno)
+            return retorno
         except socket.error as e:
             print(e)
 

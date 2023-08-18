@@ -26,8 +26,8 @@ pos = [(200, 200), (200, 200)]
 players_ready = [False, False]
 
 def thread_client(conn, player):
-    global idCount
     global players_ready
+    global currentPlayer
 
     # A primeira mensagem será uma tupla com a posição inicial e o número do player (1 ou 2)
     firstMessage = f"{player}:{pos[player]}"
@@ -62,38 +62,33 @@ def thread_client(conn, player):
         while True:
             try:
                 data = read_pos(conn.recv(2048).decode())
-                print(data)
-                if idCount >= 2:
-                    if data == (-1,-1):
-                        players_ready[player] = False
-                        return
-                    else:
-                        pos[player] = data
-                        if player == 1:
-                            reply = pos[0]
-                        else:
-                            reply = pos[1]
-                                    
-                        print(f"Recebendo:", data)
-                        print(f"Enviando", reply)
+                if data == (0,0):
+                    players_ready = [False,False]
+                    reply = data
+                    data1 = ""
                     conn.sendall(str.encode(make_pos(reply)))
+                    break
+                else:
+                    pos[player] = data
+                    if player == 1:
+                        reply = pos[0]
+                    else:
+                        reply = pos[1]
+                                
+                    print(f"Recebendo:", data)
+                    print(f"Enviando", reply)
+                conn.sendall(str.encode(make_pos(reply)))
             except:
                 break
-
-        
-    print(f"Conexao Perdida com Player {player + 1}")
-
-    global currentPlayer
     currentPlayer -= 1
     conn.close()
+    print(f"Conexao Perdida com Player {player + 1}")
 
 currentPlayer = 0
 
 while True:
     conn, addr = s.accept()
     
-    idCount +=1
-    p=0
     print("Conectado ao: ", addr)
 
     start_new_thread(thread_client, (conn, currentPlayer))
